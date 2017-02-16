@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.kuyue.daynightmode.MainActivity">
+
+    <CheckBox
+        android:id="@+id/cb_book"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="简书切换方案"
+        android:background="?attr/clockBackground"
+        android:textColor="?attr/clockTextColor"/>
+    <CheckBox
+        android:id="@+id/cb_zhi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="知乎切换方案"
+        android:layout_below="@id/cb_book"
+        android:background="?attr/clockBackground"
+        android:textColor="?attr/clockTextColor"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/cb_zhi"/>
+
+</RelativeLayout>
