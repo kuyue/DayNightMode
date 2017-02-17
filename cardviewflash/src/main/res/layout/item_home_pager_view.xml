@@ -4,6 +4,10 @@
              android:layout_height="150dp"
              android:orientation="vertical">
 
+    <!--<com.facebook.drawee.view.SimpleDraweeView-->
+        <!--android:id="@+id/sdv_home_pager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="150dp"/>-->
     <ImageView
         android:id="@+id/iv_home_pager"
         android:layout_width="match_parent"
@@ -15,7 +19,7 @@
         android:id="@+id/tv_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|bottom|center_vertical|fill_vertical|center|fill"
+        android:layout_gravity="bottom|center_vertical"
         android:ellipsize="end"
         android:maxLines="2"
         android:paddingBottom="5dp"
