@@ -14,41 +14,45 @@ import java.util.List;
  */
 
 public abstract class BasePagerAdapter<T> extends PagerAdapter {
-    public List<T> d = new ArrayList();
-    public int e;
-    public Context f;
+    public List<T> mList = new ArrayList();
+    public int mSize;
+    public Context mContext;
 
     public abstract View initItem(int i);
 
     public BasePagerAdapter(Context context, List<T> list) {
-        this.f = context;
+        this.mContext = context;
         setList(list);
     }
 
     public void setList(List<T> list) {
         if (list != null) {
-            this.d.clear();
-            this.d.addAll(list);
+            this.mList.clear();
+            this.mList.addAll(list);
             notifyDataSetChanged();
         }
     }
 
+    @Override
     public int getCount() {
-        int size = this.d.size();
-        this.e = size;
+        int size = this.mList.size();
+        this.mSize = size;
         return size;
     }
 
+    @Override
     public boolean isViewFromObject(View view, Object obj) {
         return view == obj;
     }
 
+    @Override
     public Object instantiateItem(ViewGroup viewGroup, int i) {
         View initItem = initItem(i);
         viewGroup.addView(initItem);
         return initItem;
     }
 
+    @Override
     public void destroyItem(ViewGroup viewGroup, int i, Object obj) {
         viewGroup.removeView((View) obj);
     }

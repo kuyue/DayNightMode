@@ -14,53 +14,45 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 /**
+ * 自动循环滚动ViewPager
  * Created by sen young on 2017/2/16 17:02.
  * 邮箱:595327086@qq.com.
  */
 
 public class AutoScrollViewPager extends ViewPager {
-    public static final int g = 1500;
-    public static final int h = 0;
-    public static final int i = 1;
-    public static final int j = 0;
-    public static final int k = 1;
-    public static final int l = 2;
-    public static final int m = 0;
-    private float A;
-    private float B;
-    private float C;
-    private CustomDurationScroller D = null;
-    private long n = 1500;
-    private int o = 1;
-    private boolean p = true;
-    private boolean q = false;
-    private int r = 1;
-    private boolean s = true;
-    private double t = 1.0d;
-    private double u = 1.0d;
-    private Handler v;
-    private boolean w = false;
-    private boolean x = false;
-    private float y = 0.0f;
-    private float z = 0.0f;
 
-    private static class a extends Handler {
-        private final WeakReference<AutoScrollViewPager> a;
+    private float mDownX;
+    private float mDownY;
+    private CustomDurationScroller mScroller = null;
+    private long mSlidingInterval = 1500;
+    private int Direction = 1;
+    private boolean cycle = true;
+    private boolean StopScrollWhenTouch = false;
+    private int SlideBorderMode = 1;
+    private boolean BorderAnimation = true;
+    private int t = 500;
+    private int u = 500;
+    private Handler mHandler;
+    private boolean autoScroll = false;
+    private boolean stopScrollWhenTouch = false;
 
-        public a(AutoScrollViewPager autoScrollViewPager) {
-            this.a = new WeakReference(autoScrollViewPager);
+    private static class MyHandler extends Handler {
+        private final WeakReference<AutoScrollViewPager> mWeakReference;
+
+        public MyHandler(AutoScrollViewPager autoScrollViewPager) {
+            this.mWeakReference = new WeakReference(autoScrollViewPager);
         }
 
         public void handleMessage(Message message) {
             super.handleMessage(message);
             switch (message.what) {
                 case 0:
-                    AutoScrollViewPager autoScrollViewPager = (AutoScrollViewPager) this.a.get();
+                    AutoScrollViewPager autoScrollViewPager = this.mWeakReference.get();
                     if (autoScrollViewPager != null) {
-                        autoScrollViewPager.D.setScrollDurationFactor(autoScrollViewPager.t);
+                        autoScrollViewPager.mScroller.setScrollDurationFactor(autoScrollViewPager.t);
                         autoScrollViewPager.scrollOnce();
-                        autoScrollViewPager.D.setScrollDurationFactor(autoScrollViewPager.u);
-                        autoScrollViewPager.a(autoScrollViewPager.n + ((long) autoScrollViewPager.D.getDuration()));
+                        autoScrollViewPager.mScroller.setScrollDurationFactor(autoScrollViewPager.u);
+                        autoScrollViewPager.sendMessage(autoScrollViewPager.mSlidingInterval + ((long) autoScrollViewPager.mScroller.getDuration()));
                         return;
                     }
                     return;
@@ -72,55 +64,60 @@ public class AutoScrollViewPager extends ViewPager {
 
     public AutoScrollViewPager(Context context) {
         super(context);
-        f();
+        initData();
     }
 
     public AutoScrollViewPager(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        f();
+        initData();
     }
 
-    private void f() {
-        this.v = new a(this);
-        g();
+    private void initData() {
+        this.mHandler = new MyHandler(this);
+        initViewPager();
     }
 
     public void startAutoScroll() {
-        this.w = true;
-        a((long) (((double) this.n) + ((((double) this.D.getDuration()) / this.t) * this.u)));
-    }
-
-    public void startAutoScroll(int i) {
-        this.w = true;
-        a((long) i);
+        this.autoScroll = true;
+        sendMessage((long) (((double) this.mSlidingInterval) + ((((double) this.mScroller.getDuration()) / this.t) * this.u)));
     }
 
     public void stopAutoScroll() {
-        this.w = false;
-        this.v.removeMessages(0);
+        this.autoScroll = false;
+        this.mHandler.removeMessages(0);
     }
 
-    public void setSwipeScrollDurationFactor(double d) {
+    /**
+     * 设置滑动滚动时间因素
+     *
+     * @param d
+     */
+    public void setSwipeScrollDurationFactor(int d) {
         this.u = d;
     }
 
-    public void setAutoScrollDurationFactor(double d) {
+    /**
+     * 设置自动滚动时间因素
+     *
+     * @param d
+     */
+    public void setAutoScrollDurationFactor(int d) {
         this.t = d;
     }
 
-    private void a(long j) {
-        this.v.removeMessages(0);
-        this.v.sendEmptyMessageDelayed(0, j);
+    private void sendMessage(long j) {
+        this.mHandler.removeMessages(0);
+        this.mHandler.sendEmptyMessageDelayed(0, j);
     }
 
-    private void g() {
+    private void initViewPager() {
         try {
-            Field declaredField = ViewPager.class.getDeclaredField("x");
+            Field declaredField = ViewPager.class.getDeclaredField("mScroller");
             declaredField.setAccessible(true);
-            Field declaredField2 = ViewPager.class.getDeclaredField("q");
+            Field declaredField2 = ViewPager.class.getDeclaredField("sInterpolator");//
             declaredField2.setAccessible(true);
-            this.D = new CustomDurationScroller(getContext(), (Interpolator) declaredField2.get(null));
-            declaredField.set(this, this.D);
+            this.mScroller = new CustomDurationScroller(getContext(), (Interpolator) declaredField2.get(null));
+            declaredField.set(this, this.mScroller);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,7 +127,7 @@ public class AutoScrollViewPager extends ViewPager {
         PagerAdapter adapter = getAdapter();
         if (adapter != null && adapter.getCount() > 1) {
             int currentItem = getCurrentItem();
-            currentItem = this.o == 0 ? currentItem - 1 : currentItem + 1;
+            currentItem = this.Direction == 0 ? currentItem - 1 : currentItem + 1;
             if (currentItem == adapter.getCount()) {
                 setCurrentItem(1, true);
             } else {
@@ -139,31 +136,32 @@ public class AutoScrollViewPager extends ViewPager {
         }
     }
 
+    @Override
     public boolean dispatchTouchEvent(MotionEvent motionEvent) {
         int actionMasked = MotionEventCompat.getActionMasked(motionEvent);
         switch (actionMasked) {
-            case 0:
-                this.z = motionEvent.getX();
-                this.B = motionEvent.getY();
+            case 0://按下
+                this.mDownX = motionEvent.getX();
+                this.mDownY = motionEvent.getY();
                 break;
-            case 1:
+            case 1://抬起
                 getParent().requestDisallowInterceptTouchEvent(false);
                 break;
-            case 2:
-                this.A = motionEvent.getX();
-                this.C = motionEvent.getY();
-                if (Math.abs(this.C - this.B) < Math.abs(this.A - this.z) && Math.abs(this.A - this.z) > 2.0f) {
+            case 2://滑动
+                float slideX = motionEvent.getX();
+                float slideY = motionEvent.getY();
+                if (Math.abs(slideY - this.mDownY) < Math.abs(slideX - this.mDownX) && Math.abs(slideX - this.mDownX) > 2.0f) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     break;
                 }
                 getParent().requestDisallowInterceptTouchEvent(false);
                 break;
         }
-        if (this.q) {
-            if (actionMasked == 0 && this.w) {
-                this.x = true;
+        if (this.StopScrollWhenTouch) {//开启触碰就停止滑动时
+            if (actionMasked == 0 && this.autoScroll) {//当按下并在自动滑动时，则停止滑动
+                this.stopScrollWhenTouch = true;
                 stopAutoScroll();
-            } else if (motionEvent.getAction() == 1 && this.x) {
+            } else if (motionEvent.getAction() == 1 && this.stopScrollWhenTouch) {//抬起时则开始滑动
                 startAutoScroll();
             }
         }
@@ -171,50 +169,55 @@ public class AutoScrollViewPager extends ViewPager {
     }
 
     public long getInterval() {
-        return this.n;
+        return this.mSlidingInterval;
     }
 
-    public void setInterval(long j) {
-        this.n = j;
+    /**
+     * 设置卡片滑动间隔
+     *
+     * @param cardSlidingInterval
+     */
+    public void setCardSlidingInterval(long cardSlidingInterval) {
+        this.mSlidingInterval = cardSlidingInterval;
     }
 
     public int getDirection() {
-        return this.o == 0 ? 0 : 1;
+        return this.Direction == 0 ? 0 : 1;
     }
 
-    public void setDirection(int i) {
-        this.o = i;
+    public void setDirection(int direction) {
+        this.Direction = direction;
     }
 
     public boolean isCycle() {
-        return this.p;
+        return this.cycle;
     }
 
-    public void setCycle(boolean z) {
-        this.p = z;
+    public void setCycle(boolean cycle) {
+        this.cycle = cycle;
     }
 
     public boolean isStopScrollWhenTouch() {
-        return this.q;
+        return this.StopScrollWhenTouch;
     }
 
-    public void setStopScrollWhenTouch(boolean z) {
-        this.q = z;
+    public void setStopScrollWhenTouch(boolean stopScrollWhenTouch) {
+        this.StopScrollWhenTouch = stopScrollWhenTouch;
     }
 
     public int getSlideBorderMode() {
-        return this.r;
+        return this.SlideBorderMode;
     }
 
-    public void setSlideBorderMode(int i) {
-        this.r = i;
+    public void setSlideBorderMode(int slideBorderMode) {
+        this.SlideBorderMode = slideBorderMode;
     }
 
     public boolean isBorderAnimation() {
-        return this.s;
+        return this.BorderAnimation;
     }
 
-    public void setBorderAnimation(boolean z) {
-        this.s = z;
+    public void setBorderAnimation(boolean borderAnimation) {
+        this.BorderAnimation = borderAnimation;
     }
 }
