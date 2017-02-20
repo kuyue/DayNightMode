@@ -23,4 +23,14 @@
         android:layout_below="@id/view_pager"
         android:layout_marginTop="10dp"/>
 
+    <ImageButton
+        android:id="@+id/img_btn"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/flipper_flash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/good"
+        android:background="@color/transparent"/>
+
 </RelativeLayout>

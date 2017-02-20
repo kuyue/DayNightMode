@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import com.kuyue.cardviewflash.entity.NewsHomePager;
 import com.kuyue.cardviewflash.util.DensityUtils;
 import com.kuyue.cardviewflash.util.GlideUtils;
 import com.kuyue.cardviewflash.view.AutoScrollViewPager;
+import com.kuyue.cardviewflash.view.GoodView;
 import com.kuyue.cardviewflash.view.ZoomOutPageTransformer;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     AutoScrollViewPager mViewPager;
     @Bind(R.id.flipper_flash)
     ViewFlipper mFlipperFlash;
+    @Bind(R.id.img_btn)
+    ImageButton mImgBtn;
 
     private ViewAdapter mViewAdapter;
     private List<View> mViews;
@@ -41,7 +46,11 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext;
     private MyCarOnClickListener mCarOnClickListener = new MyCarOnClickListener();
 
+    //快讯
     private List<NewsFlash> mNewsFlashes = new ArrayList<>();
+
+    //点赞
+    private GoodView mGoodView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
             mNewsFlashes.add(newsFlash);
 
             initNewsFlash();
+
+            mGoodView = new GoodView(mContext);
         }
     }
 
@@ -146,6 +157,13 @@ public class MainActivity extends AppCompatActivity {
         imageView.setTag(newsHomePager.getUrl());
         imageView.setOnClickListener(mCarOnClickListener);//添加点击事件
         mViews.add(inflate);
+    }
+
+    @OnClick(R.id.img_btn)
+    public void onClick() {
+        mImgBtn.setImageResource(R.mipmap.good_checked);
+        mGoodView.setText("+1");
+        mGoodView.show(mImgBtn);
     }
 
     class MyCarOnClickListener implements View.OnClickListener {
